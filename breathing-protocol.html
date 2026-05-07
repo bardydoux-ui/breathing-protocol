@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مدولاتور عصبی-تنفسی | Clinical Edition</title>
-    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <!-- بهینه‌سازی لود فونت (رفع مشکل دیر لود شدن) -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" media="print" onload="this.media='all'" />
+    <noscript><link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" /></noscript>
     
     <style>
         :root {
@@ -17,7 +21,6 @@
             --text-secondary: #8da3b8;
             --border-clinical: rgba(79, 195, 247, 0.15);
             
-            /* رنگ‌های بیوفیدبک */
             --phase-inhale: #4fc3f7;
             --phase-hold: #ffd54f;
             --phase-exhale: #81c784;
@@ -37,7 +40,6 @@
 
         .container { max-width: 1400px; margin: 0 auto; padding: 4rem 2rem; }
 
-        /* هدر آکادمیک */
         .academic-header { text-align: center; margin-bottom: 4rem; }
         .academic-header h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.5px; }
         .academic-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 800px; margin: 0 auto; text-align: justify; text-align-last: center; }
@@ -49,7 +51,6 @@
             font-size: 0.85rem; max-width: 800px; margin: 2rem auto 0; text-align: justify;
         }
 
-        /* گرید کارت‌ها */
         .clinical-grid {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 2.5rem;
         }
@@ -59,7 +60,7 @@
             border: 1px solid var(--border-clinical);
             border-radius: 1rem; padding: 2rem;
             display: flex; flex-direction: column;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
             position: relative; overflow: hidden;
         }
 
@@ -99,12 +100,12 @@
         }
         .start-btn:hover { background: var(--accent-medical); color: var(--bg-base); }
 
-        /* --- موتور بیوفیدبک (تایمر) --- */
+        /* --- موتور بیوفیدبک (بهینه‌شده با GPU) --- */
         .biofeedback-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #020408; z-index: 3000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden; transition: opacity 0.5s ease;
+            opacity: 0; visibility: hidden; transition: opacity 0.4s ease;
         }
         .biofeedback-overlay.active { opacity: 1; visibility: visible; }
 
@@ -112,23 +113,24 @@
 
         .visualizer {
             position: relative; width: 400px; height: 400px;
-            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            /* انتقال نرم اسکیل برای دَم و بازدم */
+            transition: transform var(--phase-duration, 1s) linear;
         }
         .visualizer.inhale { transform: scale(1.15); }
         .visualizer.exhale { transform: scale(0.85); }
-        .visualizer.hold { transform: scale(1); }
+        .visualizer.hold { /* مقیاس ثابت می‌ماند */ }
 
         .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
         .ring-track { stroke: rgba(255,255,255,0.02); stroke-width: 2; fill: none; }
         
         .ring-progress {
             stroke-width: 6; fill: none; stroke-linecap: round;
-            stroke-dasharray: 1194; /* 2 * PI * 190 */
+            stroke-dasharray: 1194;
             stroke-dashoffset: 1194;
-            transition: stroke-dashoffset 0.1s linear, stroke 0.4s ease, filter 0.4s ease;
+            /* حذف transition تداخلی قبلی، اینجا با JS ست میشه تا با زمان هر فاز منطبق باشه */
+            transition: filter 0.4s ease; 
         }
 
-        /* منطق نوری: دَم روشن، بازدَم خاموش */
         .visualizer.inhale .ring-progress { filter: drop-shadow(0 0 25px var(--phase-inhale)); }
         .visualizer.exhale .ring-progress { filter: drop-shadow(0 0 0px transparent); }
         .visualizer.hold .ring-progress { filter: drop-shadow(0 0 8px var(--phase-hold)); }
@@ -150,6 +152,7 @@
 <body>
 
     <div class="container">
+        <!-- هدر کاملا دست‌نخورده -->
         <header class="academic-header">
             <h1>فیزیولوژی تنفس بالینی</h1>
             <p>مداخلات غیردارویی جهت تنظیم سیستم عصبی خودمختار (ANS)، تعدیل pH خون بر اساس اثر بور (Bohr Effect)، و بهینه‌سازی تنوع ضربان قلب (HRV).</p>
@@ -160,7 +163,6 @@
 
         <main class="clinical-grid">
             
-            <!-- متد A52 (فرکانس رزونانس) -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">متد A52 (فرکانس رزونانس ۰.۱ هرتز)</h2>
@@ -182,7 +184,6 @@
                 ], 10)'>شروع پروتکل (۱۰ دقیقه)</button>
             </article>
 
-            <!-- متد بوتیکو -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">بازآموزی بوتیکو (Buteyko)</h2>
@@ -204,7 +205,6 @@
                 ])'>شروع پروتکل</button>
             </article>
 
-            <!-- متد ویم هاف (هورمسیس) -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">استرس هورمتیک (Wim Hof)</h2>
@@ -228,7 +228,6 @@
                 ])'>شروع چرخه دمو</button>
             </article>
 
-            <!-- آه فیزیولوژیک -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">آه فیزیولوژیک (Cyclic Sighing)</h2>
@@ -249,7 +248,6 @@
                 ])'>شروع پروتکل</button>
             </article>
 
-            <!-- تنفس مربعی -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">تنفس مربعی (Box Breathing)</h2>
@@ -271,7 +269,6 @@
                 ])'>شروع پروتکل</button>
             </article>
 
-            <!-- تنفس 4-7-8 -->
             <article class="protocol-card">
                 <div class="card-header">
                     <h2 class="protocol-title">پروتکل پاراسمپاتیک (۴-۷-۸)</h2>
@@ -311,15 +308,31 @@
     <script>
         let engineRunning = false;
         let audioContext;
-        let frameRequest;
+        let currentTimer; // جایگزین frameRequest برای دقت بالاتر
         const CIRCUMFERENCE = 1194; // 2 * Math.PI * 190
+        
+        // کش کردن المان‌های DOM برای پرفورمنس
+        const domElements = {
+            overlay: document.getElementById('overlay'),
+            procName: document.getElementById('procName'),
+            viz: document.getElementById('viz'),
+            coreText: document.getElementById('coreText'),
+            ringPath: document.getElementById('ringPath')
+        };
 
-        // ژنراتور صوتی کلینیکال
+        // فعال‌سازی ایمن AudioContext طبق قوانین مروگر
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+        }
+
         function emitTone(phaseType) {
-            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioContext.state === 'suspended') audioContext.resume();
+            if (!audioContext) return;
             
-            // فرکانس‌ها بر اساس نوع فاز
             let freq = phaseType === 'inhale' ? 380 : (phaseType === 'hold' ? 450 : 550);
             
             let oscillator = audioContext.createOscillator();
@@ -328,7 +341,6 @@
             oscillator.type = 'sine';
             oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
             
-            // پاکت صوتی (Envelope) نرم
             gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
             
@@ -338,15 +350,26 @@
         }
 
         async function initiateProtocol(title, phases, durationMinutes = null) {
-            engineRunning = true;
-            document.getElementById('procName').innerText = title;
-            document.getElementById('overlay').classList.add('active');
+            // فعال‌سازی صدا با کلیک کاربر (جلوگیری از باگ مرورگر)
+            initAudio();
             
-            const sessionStart = performance.now();
+            engineRunning = true;
+            domElements.procName.innerText = title;
+            domElements.overlay.classList.add('active');
+            
+            // ریست کردن دایره قبل از شروع
+            domElements.ringPath.style.transition = 'none';
+            domElements.ringPath.style.strokeDashoffset = CIRCUMFERENCE;
+            
+            // استفاده از Date.now بجای performance.now برای دقت تایمر مطلق
+            const sessionStart = Date.now();
             const timeLimit = durationMinutes ? durationMinutes * 60 * 1000 : Infinity;
 
+            // دادن زمان کوتاه برای اعمال استایل‌های ریست شده
+            await new Promise(r => setTimeout(r, 50));
+
             while (engineRunning) {
-                if (performance.now() - sessionStart >= timeLimit) {
+                if (Date.now() - sessionStart >= timeLimit) {
                     abortProtocol();
                     alert("جلسه کلینیکال (تایمر تعیین شده) با موفقیت تکمیل گردید.");
                     break;
@@ -360,53 +383,46 @@
 
         function abortProtocol() {
             engineRunning = false;
-            cancelAnimationFrame(frameRequest);
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('viz').className = "visualizer";
+            clearTimeout(currentTimer);
+            domElements.overlay.classList.remove('active');
+            domElements.viz.className = "visualizer";
+            
+            // توقف انیمیشن
+            domElements.ringPath.style.transition = 'none';
         }
 
         function processPhase(phase) {
             return new Promise(resolve => {
-                const start = performance.now();
-                const duration = phase.dur * 1000;
-                
                 emitTone(phase.action);
                 
-                // رندر متن (بدون ثانیه‌شمار)
-                const coreText = document.getElementById('coreText');
-                coreText.innerText = phase.txt;
-                coreText.style.color = phase.col;
+                // تنظیمات متن و رنگ
+                domElements.coreText.innerText = phase.txt;
+                domElements.coreText.style.color = phase.col;
+                domElements.ringPath.style.stroke = phase.col;
                 
-                const ringPath = document.getElementById('ringPath');
-                ringPath.style.stroke = phase.col;
+                // همگام‌سازی سرعت انیمیشن CSS با زمان فاز (استفاده از GPU)
+                domElements.viz.style.setProperty('--phase-duration', `${phase.dur}s`);
                 
-                const vizContainer = document.getElementById('viz');
-                vizContainer.className = `visualizer ${phase.action}`;
+                // دادن ترنزیشن خطی دقیق به دایره
+                domElements.ringPath.style.transition = `stroke-dashoffset ${phase.dur}s linear, stroke 0.4s ease`;
+                
+                // تغییر کلاس برای اسکیل شدن کل ویژوالایزر
+                domElements.viz.className = `visualizer ${phase.action}`;
 
-                function animateFrame(now) {
-                    if (!engineRunning) return resolve();
-                    
-                    let elapsed = now - start;
-                    let completion = Math.min(elapsed / duration, 1);
-
-                    if (elapsed >= duration) {
-                        // تراز نهایی مسیر SVG در پایان فاز
-                        if (phase.action === 'inhale') ringPath.style.strokeDashoffset = 0;
-                        if (phase.action === 'exhale') ringPath.style.strokeDashoffset = CIRCUMFERENCE;
-                        resolve();
-                    } else {
-                        // محاسبه پر و خالی شدن دایره
-                        if (phase.action === 'inhale') {
-                            ringPath.style.strokeDashoffset = CIRCUMFERENCE - (completion * CIRCUMFERENCE);
-                        } else if (phase.action === 'exhale') {
-                            ringPath.style.strokeDashoffset = completion * CIRCUMFERENCE;
-                        }
-                        // در فاز Hold هیچ تغییری در مسیر SVG نمی‌دهیم (ثابت می‌ماند)
-                        
-                        frameRequest = requestAnimationFrame(animateFrame);
-                    }
+                // تنظیم مقصد نهایی دایره بر اساس نوع اکشن
+                // مرورگر خودش نرم این مسیر رو طی میکنه بدون درگیر کردن JS
+                if (phase.action === 'inhale') {
+                    domElements.ringPath.style.strokeDashoffset = 0;
+                } else if (phase.action === 'exhale') {
+                    domElements.ringPath.style.strokeDashoffset = CIRCUMFERENCE;
                 }
-                frameRequest = requestAnimationFrame(animateFrame);
+                // تو فاز hold دست به دایره نمیزنیم تا همونجا بمونه
+                
+                // استفاده از setTimeout به جای requestAnimationFrame
+                // این باعث میشه تو بک‌گراند تب هم تایمر با دقت خوبی پیش بره
+                currentTimer = setTimeout(() => {
+                    if(engineRunning) resolve();
+                }, phase.dur * 1000);
             });
         }
     </script>
