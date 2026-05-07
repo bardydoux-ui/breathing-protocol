@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدولاتور عصبی-تنفسی | Clinical Edition</title>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        :root {
+            --bg-base: #04070c;
+            --card-surface: rgba(15, 20, 30, 0.75);
+            --accent-medical: #4fc3f7;
+            --accent-warning: #e57373;
+            --accent-success: #81c784;
+            --text-primary: #e3f2fd;
+            --text-secondary: #8da3b8;
+            --border-clinical: rgba(79, 195, 247, 0.15);
+            
+            /* رنگ‌های بیوفیدبک */
+            --phase-inhale: #4fc3f7;
+            --phase-hold: #ffd54f;
+            --phase-exhale: #81c784;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Vazirmatn', system-ui, sans-serif;
+            background: var(--bg-base);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.8;
+            background-image: radial-gradient(circle at 50% 0%, #0d1624 0%, #04070c 80%);
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 4rem 2rem; }
+
+        /* هدر آکادمیک */
+        .academic-header { text-align: center; margin-bottom: 4rem; }
+        .academic-header h1 { font-size: 2.6rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.5px; }
+        .academic-header p { color: var(--text-secondary); font-size: 1.1rem; max-width: 800px; margin: 0 auto; text-align: justify; text-align-last: center; }
+
+        .medical-disclaimer {
+            background: rgba(229, 115, 115, 0.1);
+            border: 1px solid rgba(229, 115, 115, 0.3);
+            color: #ffcdd2; padding: 1rem; border-radius: 0.5rem;
+            font-size: 0.85rem; max-width: 800px; margin: 2rem auto 0; text-align: justify;
+        }
+
+        /* گرید کارت‌ها */
+        .clinical-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 2.5rem;
+        }
+
+        .protocol-card {
+            background: var(--card-surface);
+            border: 1px solid var(--border-clinical);
+            border-radius: 1rem; padding: 2rem;
+            display: flex; flex-direction: column;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+
+        .protocol-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(79, 195, 247, 0.4);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(79, 195, 247, 0.05);
+        }
+
+        .card-header { border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem; margin-bottom: 1.5rem; }
+        .protocol-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+        .protocol-formula {
+            font-family: monospace; background: rgba(0,0,0,0.5); padding: 0.2rem 0.6rem;
+            border-radius: 4px; color: var(--accent-medical); font-size: 1rem; direction: ltr; display: inline-block;
+        }
+
+        .biochem-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .tag {
+            font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.1);
+        }
+        .tag-warning { color: var(--accent-warning); border-color: rgba(229, 115, 115, 0.3); background: rgba(229, 115, 115, 0.05); }
+        .tag-timer { color: var(--phase-hold); border-color: rgba(255, 213, 79, 0.3); background: rgba(255, 213, 79, 0.05); }
+
+        .mechanism-box {
+            background: rgba(0, 0, 0, 0.3); border-right: 3px solid var(--accent-medical);
+            padding: 1.2rem; border-radius: 0.5rem; margin-top: auto; margin-bottom: 1.5rem;
+        }
+        .mech-title { font-size: 0.8rem; font-weight: 700; color: var(--accent-medical); margin-bottom: 0.5rem; text-transform: uppercase; }
+        .mech-text { font-size: 0.85rem; color: #b0c0d0; text-align: justify; }
+
+        .start-btn {
+            width: 100%; padding: 1rem; background: transparent;
+            border: 1px solid var(--accent-medical); color: var(--accent-medical);
+            font-family: inherit; font-size: 1rem; font-weight: 700; border-radius: 0.5rem;
+            cursor: pointer; transition: 0.3s;
+        }
+        .start-btn:hover { background: var(--accent-medical); color: var(--bg-base); }
+
+        /* --- موتور بیوفیدبک (تایمر) --- */
+        .biofeedback-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020408; z-index: 3000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: opacity 0.5s ease;
+        }
+        .biofeedback-overlay.active { opacity: 1; visibility: visible; }
+
+        .active-title { font-size: 1.5rem; font-weight: 300; color: #8da3b8; margin-bottom: 3rem; letter-spacing: 2px; }
+
+        .visualizer {
+            position: relative; width: 400px; height: 400px;
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .visualizer.inhale { transform: scale(1.15); }
+        .visualizer.exhale { transform: scale(0.85); }
+        .visualizer.hold { transform: scale(1); }
+
+        .ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+        .ring-track { stroke: rgba(255,255,255,0.02); stroke-width: 2; fill: none; }
+        
+        .ring-progress {
+            stroke-width: 6; fill: none; stroke-linecap: round;
+            stroke-dasharray: 1194; /* 2 * PI * 190 */
+            stroke-dashoffset: 1194;
+            transition: stroke-dashoffset 0.1s linear, stroke 0.4s ease, filter 0.4s ease;
+        }
+
+        /* منطق نوری: دَم روشن، بازدَم خاموش */
+        .visualizer.inhale .ring-progress { filter: drop-shadow(0 0 25px var(--phase-inhale)); }
+        .visualizer.exhale .ring-progress { filter: drop-shadow(0 0 0px transparent); }
+        .visualizer.hold .ring-progress { filter: drop-shadow(0 0 8px var(--phase-hold)); }
+
+        .instruction-core {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 2.5rem; font-weight: 800; text-align: center; width: 85%;
+            line-height: 1.4; transition: color 0.4s ease;
+        }
+
+        .abort-btn {
+            margin-top: 5rem; padding: 0.8rem 2.5rem; background: transparent;
+            border: 1px solid rgba(229, 115, 115, 0.4); color: var(--accent-warning);
+            border-radius: 50px; cursor: pointer; font-family: inherit; transition: 0.3s;
+        }
+        .abort-btn:hover { background: rgba(229, 115, 115, 0.1); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="academic-header">
+            <h1>فیزیولوژی تنفس بالینی</h1>
+            <p>مداخلات غیردارویی جهت تنظیم سیستم عصبی خودمختار (ANS)، تعدیل pH خون بر اساس اثر بور (Bohr Effect)، و بهینه‌سازی تنوع ضربان قلب (HRV).</p>
+            <div class="medical-disclaimer">
+                <b>⚠️ هشدار پزشکی:</b> این پلتفرم صرفاً جهت اهداف تحقیقاتی و اطلاعاتی است. تکنیک‌های شامل بیش‌دمی (Hyperventilation) یا حبس نفس برای افراد مبتلا به صرع، نارسایی‌های قلبی-عروقی و فشار خون کنترل‌نشده منع مصرف دارد. هرگز این تمرینات را در محیط‌های آبی (استخر/حمام) انجام ندهید زیرا خطر بیهوشی (Shallow Water Blackout) وجود دارد.
+            </div>
+        </header>
+
+        <main class="clinical-grid">
+            
+            <!-- متد A52 (فرکانس رزونانس) -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">متد A52 (فرکانس رزونانس ۰.۱ هرتز)</h2>
+                    <span class="protocol-formula">5 : 5 : 2</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag tag-timer">تایمر بالینی ۱۰ دقیقه‌ای</span>
+                    <span class="tag">افزایش چشمگیر HRV</span>
+                    <span class="tag">تحریک بارورفلکس</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">تنفس در فرکانس ۰.۱ هرتز باعث هم‌فازی نوسانات تنفسی با امواج مایر در فشار خون می‌شود (پدیده رزونانس). فاز بازدم به طور مستقیم عصب واگ را تحریک کرده و حبس ۲ ثانیه‌ای در انتهای بازدم، با افزایش خفیف CO2 خون، تحمل سلولی را بالا برده و ترشح کورتیزول را مهار می‌کند.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("متد A52 (فرکانس رزونانس)", [
+                    { txt: "دَم دیافراگمی", dur: 5, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "بازدَم تخلیه‌ای", dur: 5, action: "exhale", col: "var(--phase-exhale)" },
+                    { txt: "توقف تنفس", dur: 2, action: "hold", col: "var(--phase-hold)" }
+                ], 10)'>شروع پروتکل (۱۰ دقیقه)</button>
+            </article>
+
+            <!-- متد بوتیکو -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">بازآموزی بوتیکو (Buteyko)</h2>
+                    <span class="protocol-formula">2 : 3 : 5</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag">اثر بور (Bohr Effect)</span>
+                    <span class="tag">کاهش علائم آسم</span>
+                    <span class="tag">رفع بیش‌تنفسی</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">با کاهش حجم تنفسی و ایجاد وقفه کنترل‌شده (Control Pause)، سطح CO2 خون به صورت موضعی افزایش می‌یابد. طبق معادله بور، این اسیدیته خفیف باعث کاهش تمایل هموگلوبین به O2 شده و در نتیجه آزادسازی اکسیژن در بافت‌های مغز و عضلات به شدت بهبود می‌یابد.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("پروتکل بوتیکو", [
+                    { txt: "دَم بسیار سبک", dur: 2, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "بازدَم آرام", dur: 3, action: "exhale", col: "var(--phase-exhale)" },
+                    { txt: "حبس با ریه خالی", dur: 5, action: "hold", col: "var(--phase-hold)" }
+                ])'>شروع پروتکل</button>
+            </article>
+
+            <!-- متد ویم هاف (هورمسیس) -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">استرس هورمتیک (Wim Hof)</h2>
+                    <span class="protocol-formula">Hyperventilation</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag tag-warning">منع مصرف در صرع</span>
+                    <span class="tag">ترشح اپی‌نفرین</span>
+                    <span class="tag">سیتوکین ضدالتهاب IL-10</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">القاء آگاهانه هایپوکاپنیا (افت شدید CO2 و قلیایی شدن خون). این استرس حاد باعث ترشح آدرنالین از غدد فوق‌کلیوی می‌شود که پاسخ ایمنی را مدوله کرده و سایتوکین‌های پیش‌التهابی (مانند TNF-α) را به شدت سرکوب می‌کند.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("استرس هورمتیک (چرخه کنترل‌شده)", [
+                    { txt: "دَم عمیق", dur: 1.5, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "رهاسازی هوا", dur: 1, action: "exhale", col: "var(--phase-exhale)" },
+                    { txt: "دَم عمیق", dur: 1.5, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "رهاسازی هوا", dur: 1, action: "exhale", col: "var(--phase-exhale)" },
+                    { txt: "فاز هیپوکسی\n(حبس نفس)", dur: 10, action: "hold", col: "var(--phase-hold)" }
+                ])'>شروع چرخه دمو</button>
+            </article>
+
+            <!-- آه فیزیولوژیک -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">آه فیزیولوژیک (Cyclic Sighing)</h2>
+                    <span class="protocol-formula">Double Inhale</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag">بازگشایی آلوئول‌ها</span>
+                    <span class="tag">تخلیه اورژانسی CO2</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">در شرایط استرس‌زا تنفس سطحی می‌شود و کیسه‌های هوایی (آلوئول‌ها) دچار کلاپس می‌گردند. اعمال فشار مثبت ناشی از دَم دوم (تکمیلی) بر کشش سطحی غلبه کرده و آلوئول‌ها را باز می‌کند. بازدم طولانی بعدی فوراً ترمز پاراسمپاتیک را فعال می‌کند.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("آه فیزیولوژیک", [
+                    { txt: "دَم عمیق", dur: 3, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "دَم تکمیلی و پر شدن", dur: 1, action: "inhale", col: "#fff" },
+                    { txt: "بازدَم تخلیه‌ای طولانی", dur: 6, action: "exhale", col: "var(--phase-exhale)" }
+                ])'>شروع پروتکل</button>
+            </article>
+
+            <!-- تنفس مربعی -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">تنفس مربعی (Box Breathing)</h2>
+                    <span class="protocol-formula">4 : 4 : 4 : 4</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag">امواج مغزی آلفا</span>
+                    <span class="tag">تنظیم گیرنده شیمیایی</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">ایجاد تقارن زمانی دقیق در فازهای تنفسی. این الگو باعث ایجاد تعادل کامل بین PaO2 و PaCO2 شده و با تثبیت فیدبک‌های عصبی ساقه مغز، فعالیت الکتریکی مغز را از امواج بتا (اضطراب) به سمت امواج آلفا (تمرکز هشیارانه) سوق می‌دهد.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("تنفس مربعی", [
+                    { txt: "دَم اکسیژنه", dur: 4, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "توقف (کامل)", dur: 4, action: "hold", col: "var(--phase-hold)" },
+                    { txt: "بازدَم", dur: 4, action: "exhale", col: "var(--phase-exhale)" },
+                    { txt: "توقف (تخلیه)", dur: 4, action: "hold", col: "var(--phase-hold)" }
+                ])'>شروع پروتکل</button>
+            </article>
+
+            <!-- تنفس 4-7-8 -->
+            <article class="protocol-card">
+                <div class="card-header">
+                    <h2 class="protocol-title">پروتکل پاراسمپاتیک (۴-۷-۸)</h2>
+                    <span class="protocol-formula">4 : 7 : 8</span>
+                </div>
+                <div class="biochem-tags">
+                    <span class="tag">مهار سمپاتیک</span>
+                    <span class="tag">افت برون‌ده قلبی</span>
+                </div>
+                <div class="mechanism-box">
+                    <div class="mech-title">مکانیسم فیزیولوژیک</div>
+                    <p class="mech-text">بازدمی که دو برابر زمان دم طول بکشد، به صورت مکانیکی فعالیت گره سینوسی دهلیزی قلب (SA Node) را کُند کرده و تونوس عصب واگ را به حداکثر می‌رساند. این روش یک مداخله بالینی موثر برای کاهش فشار خون لحظه‌ای و غلبه بر بی‌خوابی عصبی است.</p>
+                </div>
+                <button class="start-btn" onclick='initiateProtocol("پروتکل پاراسمپاتیک", [
+                    { txt: "دَم بینی", dur: 4, action: "inhale", col: "var(--phase-inhale)" },
+                    { txt: "حبس هیپوکاپنیک", dur: 7, action: "hold", col: "var(--phase-hold)" },
+                    { txt: "بازدَم واگال (دهان)", dur: 8, action: "exhale", col: "var(--phase-exhale)" }
+                ])'>شروع پروتکل</button>
+            </article>
+
+        </main>
+    </div>
+
+    <!-- موتور بیوفیدبک -->
+    <div class="biofeedback-overlay" id="overlay">
+        <h2 class="active-title" id="procName">نام پروتکل</h2>
+        <div class="visualizer" id="viz">
+            <svg class="ring-svg" viewBox="0 0 400 400">
+                <circle class="ring-track" cx="200" cy="200" r="190"></circle>
+                <circle class="ring-progress" id="ringPath" cx="200" cy="200" r="190"></circle>
+            </svg>
+            <div class="instruction-core" id="coreText">آماده‌سازی</div>
+        </div>
+        <button class="abort-btn" onclick="abortProtocol()">توقف عملیات</button>
+    </div>
+
+    <script>
+        let engineRunning = false;
+        let audioContext;
+        let frameRequest;
+        const CIRCUMFERENCE = 1194; // 2 * Math.PI * 190
+
+        // ژنراتور صوتی کلینیکال
+        function emitTone(phaseType) {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') audioContext.resume();
+            
+            // فرکانس‌ها بر اساس نوع فاز
+            let freq = phaseType === 'inhale' ? 380 : (phaseType === 'hold' ? 450 : 550);
+            
+            let oscillator = audioContext.createOscillator();
+            let gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+            
+            // پاکت صوتی (Envelope) نرم
+            gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.15);
+            
+            oscillator.connect(gainNode).connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+
+        async function initiateProtocol(title, phases, durationMinutes = null) {
+            engineRunning = true;
+            document.getElementById('procName').innerText = title;
+            document.getElementById('overlay').classList.add('active');
+            
+            const sessionStart = performance.now();
+            const timeLimit = durationMinutes ? durationMinutes * 60 * 1000 : Infinity;
+
+            while (engineRunning) {
+                if (performance.now() - sessionStart >= timeLimit) {
+                    abortProtocol();
+                    alert("جلسه کلینیکال (تایمر تعیین شده) با موفقیت تکمیل گردید.");
+                    break;
+                }
+                for (let phase of phases) {
+                    if (!engineRunning) break;
+                    await processPhase(phase);
+                }
+            }
+        }
+
+        function abortProtocol() {
+            engineRunning = false;
+            cancelAnimationFrame(frameRequest);
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('viz').className = "visualizer";
+        }
+
+        function processPhase(phase) {
+            return new Promise(resolve => {
+                const start = performance.now();
+                const duration = phase.dur * 1000;
+                
+                emitTone(phase.action);
+                
+                // رندر متن (بدون ثانیه‌شمار)
+                const coreText = document.getElementById('coreText');
+                coreText.innerText = phase.txt;
+                coreText.style.color = phase.col;
+                
+                const ringPath = document.getElementById('ringPath');
+                ringPath.style.stroke = phase.col;
+                
+                const vizContainer = document.getElementById('viz');
+                vizContainer.className = `visualizer ${phase.action}`;
+
+                function animateFrame(now) {
+                    if (!engineRunning) return resolve();
+                    
+                    let elapsed = now - start;
+                    let completion = Math.min(elapsed / duration, 1);
+
+                    if (elapsed >= duration) {
+                        // تراز نهایی مسیر SVG در پایان فاز
+                        if (phase.action === 'inhale') ringPath.style.strokeDashoffset = 0;
+                        if (phase.action === 'exhale') ringPath.style.strokeDashoffset = CIRCUMFERENCE;
+                        resolve();
+                    } else {
+                        // محاسبه پر و خالی شدن دایره
+                        if (phase.action === 'inhale') {
+                            ringPath.style.strokeDashoffset = CIRCUMFERENCE - (completion * CIRCUMFERENCE);
+                        } else if (phase.action === 'exhale') {
+                            ringPath.style.strokeDashoffset = completion * CIRCUMFERENCE;
+                        }
+                        // در فاز Hold هیچ تغییری در مسیر SVG نمی‌دهیم (ثابت می‌ماند)
+                        
+                        frameRequest = requestAnimationFrame(animateFrame);
+                    }
+                }
+                frameRequest = requestAnimationFrame(animateFrame);
+            });
+        }
+    </script>
+</body>
+</html>
